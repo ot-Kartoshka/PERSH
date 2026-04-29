@@ -1,6 +1,13 @@
 #include "../include/LRZ.h"
+#include <bit>
 
-LZR::LZR(int degree, std::vector<int> taps) : degree_(degree) , taps_(std::move(taps)), state_(1) , mask_((1ULL << degree) - 1) {}
+LZR::LZR(int degree, std::vector<int> taps) : degree_(degree) , taps_(std::move(taps)), state_(1) , mask_((1ULL << degree) - 1) {
+
+    for (int tap : taps_) {
+        tap_mask_ |= (1ULL << tap);
+    }
+
+}
 
 void LZR::seed(uint64_t initial_state) noexcept {
     state_ = initial_state & mask_;
@@ -10,10 +17,7 @@ void LZR::seed(uint64_t initial_state) noexcept {
 int LZR::clock() noexcept {
 
     int output = static_cast<int>(state_ & 1);
-    int feedback = 0;
-
-    for (int tap : taps_)
-        feedback ^= static_cast<int>((state_ >> tap) & 1);
+    int feedback = std::popcount(state_ & tap_mask_) & 1;
 
     state_ = ((state_ >> 1) | (static_cast<uint64_t>(feedback) << (degree_ - 1))) & mask_;
 

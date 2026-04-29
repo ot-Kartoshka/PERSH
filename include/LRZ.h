@@ -18,4 +18,6 @@ private:
     std::vector<int> taps_;
     uint64_t state_ = 1;
     uint64_t mask_ = 0;
+
+    uint64_t tap_mask_ = 0;
 };
